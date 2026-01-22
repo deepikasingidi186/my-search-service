@@ -24,11 +24,23 @@ services:
       timeout: 10s
       retries: 5
 
+  indexing-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      - ES_HOST=elasticsearch
+      - RABBITMQ_HOST=rabbitmq
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.12.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.16
     environment:
       - discovery.type=single-node
-      - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
